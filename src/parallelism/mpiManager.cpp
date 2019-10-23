@@ -35,10 +35,9 @@
 #include <algorithm>
 #include <iostream>
 
-#include <boost/multiprecision/cpp_dec_float.hpp>
+#include "core/multiprecisiontype.h"
 #include <boost/mpi.hpp>
 
-using mp = boost::multiprecision::cpp_dec_float_50;
 
 namespace plb {
 
