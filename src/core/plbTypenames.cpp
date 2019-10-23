@@ -29,6 +29,8 @@
 #include "core/runTimeDiagnostics.h"
 #include <algorithm>
 
+#include "core/multiprecisiontype.h"
+
 namespace plb {
 
 template<>
