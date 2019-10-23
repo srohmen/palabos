@@ -35,8 +35,8 @@ namespace LatticeStatistics {
     enum { avRhoBar=0, avUSqr=1, maxUSqr=0 };
 }
 
-template<typename T>
-inline void gatherStatistics(BlockStatistics& statistics, const T& rhoBar, const T& uSqr) {
+template<typename T, typename U>
+inline void gatherStatistics(BlockStatistics& statistics, const T& rhoBar, const U& uSqr) {
     statistics.gatherAverage(LatticeStatistics::avRhoBar, static_cast<double>(rhoBar));
     statistics.gatherAverage(LatticeStatistics::avUSqr, static_cast<double>(uSqr));
     statistics.gatherMax(LatticeStatistics::maxUSqr, static_cast<double>(uSqr));

@@ -35,6 +35,11 @@
 #include <algorithm>
 #include <iostream>
 
+#include <boost/multiprecision/cpp_dec_float.hpp>
+#include <boost/mpi.hpp>
+
+using mp = boost::multiprecision::cpp_dec_float_50;
+
 namespace plb {
 
 namespace global {
@@ -176,6 +181,13 @@ void MpiManager::send<__float128 >(__float128  *buf, int count, int dest, int ta
 #endif
 
 template <>
+void MpiManager::send<mp>(mp *buf, int count, int dest, int tag) {
+    if (!ok) return;
+    boost::mpi::communicator comm(getGlobalCommunicator(), boost::mpi::comm_attach);
+    comm.send(dest, tag, buf, count);
+}
+
+template <>
 void MpiManager::send<Complex<float> >(Complex<float>  *buf, int count, int dest, int tag) {
     if (!ok) return;
     MPI_Send(static_cast<void*>(buf), count*sizeof(Complex<float>), MPI_CHAR, dest, tag, getGlobalCommunicator());
@@ -301,6 +313,17 @@ void MpiManager::iSend<__float128 >
     }
 }
 #endif
+
+//template <>
+//void MpiManager::iSend<mp>
+//    (mp *buf, int count, int dest, MPI_Request* request, int tag)
+//{
+//    if (ok) {
+//        boost::mpi::communicator comm(getGlobalCommunicator(), boost::mpi::comm_attach);
+//        boost::mpi::request result = comm.isend(dest, tag, buf, count);
+//        // TODO: request must be converted
+//    }
+//}
 
 template <>
 void MpiManager::iSend<Complex<float> >
@@ -694,6 +717,14 @@ void MpiManager::receive<__float128 >(__float128 *buf, int count, int source, in
 #endif
 
 template <>
+void MpiManager::receive<mp>(mp *buf, int count, int source, int tag)
+{
+    if (!ok) return;
+    boost::mpi::communicator comm(getGlobalCommunicator(), boost::mpi::comm_attach);
+    comm.recv(source, tag, buf, count);
+}
+
+template <>
 void MpiManager::receive<Complex<float> >(Complex<float> *buf, int count, int source, int tag)
 {
     if (!ok) return;
@@ -1023,6 +1054,16 @@ void MpiManager::iRecv<__float128 >(__float128 *buf, int count, int source, MPI_
     }
 }
 #endif
+
+//template <>
+//void MpiManager::iRecv<mp>(mp *buf, int count, int source, MPI_Request* request, int tag)
+//{
+//    if (ok) {
+//        boost::mpi::communicator comm(getGlobalCommunicator(), boost::mpi::comm_attach);
+//        boost::mpi::request result = comm.irecv(source, tag, buf, count);
+//        // TODO: request must be converted
+//    }
+//}
 
 template <>
 void MpiManager::iRecv<Complex<float> >(Complex<float> *buf, int count, int source, MPI_Request* request, int tag)
@@ -1610,6 +1651,14 @@ void MpiManager::bCast<__float128 >(__float128* sendBuf, int sendCount, int root
 #endif
 
 template <>
+void MpiManager::bCast<mp>(mp* sendBuf, int sendCount, int root)
+{
+    if (!ok) return;
+    boost::mpi::communicator comm(getGlobalCommunicator(), boost::mpi::comm_attach);
+    boost::mpi::broadcast(comm, sendBuf, sendCount, root);
+}
+
+template <>
 void MpiManager::bCast<Complex<float> >(Complex<float>* sendBuf, int sendCount, int root)
 {
     if (!ok) return;
@@ -1787,6 +1836,20 @@ void MpiManager::bCastThroughMaster<__float128 >(__float128 * sendBuf, int sendC
     bCast(sendBuf, sendCount, 0);
 }
 #endif
+
+template <>
+void MpiManager::bCastThroughMaster<mp>(mp * sendBuf, int sendCount, bool iAmRoot)
+{
+    if (!ok) return;
+    if (iAmRoot && !isMainProcessor()) {
+        send(sendBuf, sendCount, 0);
+    }
+    if (isMainProcessor() && !iAmRoot) {
+        receive(sendBuf, sendCount, MPI_ANY_SOURCE);
+    }
+    bCast(sendBuf, sendCount, 0);
+}
+
 
 template <>
 void MpiManager::bCastThroughMaster<Complex<float> >(Complex<float> * sendBuf, int sendCount, bool iAmRoot)
