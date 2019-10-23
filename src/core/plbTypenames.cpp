@@ -88,6 +88,12 @@ char const* NativeType<__float128>::getName() {
 #endif
 
 template<>
+char const* NativeType<mp>::getName() {
+    static const char name[] = "multiprecision";
+    return name;
+}
+
+template<>
 char const* NativeType<Complex<float> >::getName() {
     static const char name[] = "complex-float";
     return name;
