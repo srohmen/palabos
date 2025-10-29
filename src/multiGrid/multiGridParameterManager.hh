@@ -41,7 +41,7 @@ RefinementParameters<T>::RefinementParameters( plint levelNumber_, plint referen
 
 template <typename T>
 RefinementParameters<T>::RefinementParameters(RefinementParameters<T> const& rhs)
-    :levelNumber(rhs.levelNumber),referenceLevel(rhs.referenceLevel),originalParameters(rhs.parameters_)
+    :levelNumber(rhs.levelNumber),referenceLevel(rhs.referenceLevel),originalParameters(rhs.parameters)
 {}
 
 template <typename T>
